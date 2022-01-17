@@ -1,6 +1,6 @@
 module.exports = {
-  displayName: 'ap',
-  preset: '../../jest.preset.js',
+  displayName: 'angular-pages',
+  preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   globals: {
     'ts-jest': {
@@ -8,7 +8,7 @@ module.exports = {
       stringifyContentPathRegex: '\\.(html|svg)$',
     },
   },
-  coverageDirectory: '../../coverage/apps/ap',
+  coverageDirectory: '../../../coverage/libs/angular/pages',
   transform: {
     '^.+.(ts|mjs|js|html)$': 'jest-preset-angular',
   },
