@@ -3,7 +3,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SubjectsComponent } from './subjects.component';
 import { TestScheduler } from 'rxjs/testing';
 import { of } from 'rxjs';
-import { fakeAsync } from '@angular/core/testing';
+import { discardPeriodicTasks, fakeAsync, flush, flushMicrotasks, tick } from '@angular/core/testing';
 
 describe('SubjectsComponent', () => {
   let spectator: Spectator<SubjectsComponent>;
@@ -39,9 +39,11 @@ describe('SubjectsComponent', () => {
       const subs = cold(marbles);
       const expected = {a: true};
       // Destroy component on complete
-      subs.subscribe(() => {
-        spectator.component.isAPerson(true)
-      }, jest.fn, () => spectator.fixture.destroy());
+      subs.subscribe({
+        next: () => spectator.component.isAPerson(true),
+        error: jest.fn,
+        complete: () => spectator.fixture.destroy()
+      });
       expectObservable(actual).toBe(marbles, expected);
       // Verify subscription and destruction
       expectSubscriptions(subs.subscriptions).toBe('   ^  100ms  !');
@@ -51,20 +53,19 @@ describe('SubjectsComponent', () => {
   // Example of async usage
   it('has an error', fakeAsync(() => {
     testScheduler.run(({cold, expectObservable}) => {
-      const errorMessage = new Error('this has errored message')
+      const errorMessage = 'this has errored message'
       const actual = spectator.component.people$;
       const marbles = '1ms 0 #';
       const subs = cold(marbles);
-      subs.subscribe(
-        () => spectator.component.isAPerson(false),
-        (err) => expect(err).toBe('error')
-      );
-      // Notice the difference in the marbles timing
-      // The marbles above uses 2 frames where the expectObservable uses 1 frame
-      // Since the focus is on the error message in the 3rd argument we want to target that.
-      // Timing in these strings ie. '12ms ab 200ms c' or '----a-b-(cd)|' is something to play with and understand
-      expectObservable(actual).toBe('1ms #', {}, errorMessage);
+
+      actual.subscribe({
+        next: () => console.log('test'),
+        error: (err) => expect(err).toBe('error')
+      });
+      spectator.component.isAPerson(false);
+      expectObservable(actual).toBe(marbles, {}, errorMessage);
     });
+
     // tick();
     // flush();
     // flushMicrotasks();

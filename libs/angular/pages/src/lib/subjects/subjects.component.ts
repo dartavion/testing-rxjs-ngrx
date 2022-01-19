@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
-import { iif, of, pipe, Subject, throwError } from 'rxjs';
-import { mergeMap, scan, takeUntil, tap } from 'rxjs/operators';
+import { concatMap, of, pipe, Subject } from 'rxjs';
+import { scan, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'angular-patterns-subjects',
@@ -13,13 +13,15 @@ export class SubjectsComponent implements OnDestroy {
   people$ = this.people.asObservable()
     .pipe(
       takeUntil(this.destroy$),
-      tap(console.log),
-      mergeMap((data) =>
-         data
-           ? of(data)
-           : throwError(new Error('this has errored message'))
-       )
-      );
+      concatMap((data) => {
+          if (data) {
+            return of(data);
+          } else {
+            throw new Error('this has errored message');
+          }
+        }
+      )
+    );
 
   ngOnDestroy() {
     this.destroy$.next(true);
@@ -29,7 +31,7 @@ export class SubjectsComponent implements OnDestroy {
     this.people.next(value);
   }
 
-  toggle () {
+  toggle() {
     return pipe(
       scan((acc: number[], value: number) => {
         const found = acc.indexOf(value) > -1;

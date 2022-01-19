@@ -27,7 +27,7 @@
     "@ngrx/store-devtools": "13.0.2",
     "@nrwl/angular": "13.4.5",
     "ng-zorro-antd": "^12.0.1",
-    "rxjs": "~6.6.0",
+    "rxjs": "~7.5.2",
     "tslib": "^2.0.0",
     "zone.js": "0.11.4"
   },
